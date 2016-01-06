@@ -47,15 +47,15 @@ range.strafeTargets = {
 }
 ```
 
-The configuration above allows the mission to have two strafe pits, each with up to 3 targets. When the player aircraft is within the zone containing by waypoints of the UNIT named "left_zone", shots onto the target UNITS 'Strafe pit Left 3','Strafe pit Left 2' or'Strafe pit Left 1' are counted and added to the player score.
+The configuration above allows the mission to have two strafe pits, each with up to 3 targets. When the player aircraft is within the zone containing by waypoints of the UNIT with the group named "left_zone", shots onto the target UNITS / STATICS 'Strafe pit Left 3','Strafe pit Left 2' or'Strafe pit Left 1' are counted and added to the player score.
 
 An example setup of one strafe pit and target is shown below. The left_zone UNIT is set to late activated so that it doesnt actually appear when we run the mission. You can see the waypoints setting out the strafe pit zone. 
 
 ![alt text](http://i1056.photobucket.com/albums/t379/cfisher881/Range%20Zone_zpspf7gpap4.jpg~original "Strafe Pit Container")
 
-Next the strafe pit target is setup, I recommend you use this mod pack: http://www.476vfightergroup.com/downloads.php?do=file&id=287 for the strafe pits as the one in the sample mission will only survive one or two passes! Make sure the unit name is set to one of the names allowed for that strafe pit e.g. 'Strafe pit Left 1'
+Next the strafe pit target is setup, I recommend you use this mod pack: http://www.476vfightergroup.com/downloads.php?do=file&id=287 for the strafe pits as the one in the sample mission will only survive one or two passes! Make sure the unit name (not group name) or static name is set to one of the names allowed for that strafe pit e.g. 'Strafe pit Left 1'
 
-![alt text](http://i1056.photobucket.com/albums/t379/cfisher881/Range%20Zone_zpspf7gpap4.jpg~original "Strafe Pit Unit")
+![alt text](http://i1056.photobucket.com/albums/t379/cfisher881/Range%20Target_zpsrt3k8igg.jpg~originall "Strafe Pit Unit")
 
 #### Bombing Targets
 
