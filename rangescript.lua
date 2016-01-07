@@ -1,7 +1,12 @@
 -- DCS - Simple Range Script
--- Version 1.0
-
--- Required MIST 4.0.57 or newer!
+-- Version 1.1
+-- By Ciribob - https://github.com/ciribob/DCS-SimpleRangeScript
+--
+-- Change log:
+--      - Added more accuracte target distance measurement
+--      - Added weapon name for bombing range to scoreboard
+--
+-- Requires MIST 4.0.57 or newer!
 -- Inspired by Original Script by SNAFU http://forums.eagle.ru/showthread.php?t=109174
 
 range  = {}
@@ -148,7 +153,7 @@ function range.displayMyBombingResults(_unitName)
     local _unit = Unit.getByName(_unitName)
 
     if _unit and _unit:getPlayerName() then
-        local _message = "My Top 10 Bombing Results: \n"
+        local _message = "My Top 20 Bombing Results: \n"
 
         local _results = range.bombPlayerResults[_unit:getPlayerName()]
 
@@ -164,15 +169,15 @@ function range.displayMyBombingResults(_unitName)
             local _count = 1
             for _,_result in pairs(_results) do
 
-                _message = _message.."\n"..string.format("%s - %i m",_result.name,_result.distance)
+                _message = _message.."\n"..string.format("%s - %s - %i m",_result.name,_result.weapon,_result.distance)
 
                 if _bestMsg == "" then
 
-                    _bestMsg = string.format("%s - %i m",_result.name,_result.distance)
+                    _bestMsg = string.format("%s - %s - %i m",_result.name,_result.weapon,_result.distance)
                 end
 
-                -- 10 runs
-                if _count == 10 then
+                -- 20 runs
+                if _count == 20 then
                     break
                 end
 
@@ -194,7 +199,7 @@ function range.displayBombingResults(_unitName)
     local _playerResults = {}
     if _unit and _unit:getPlayerName() then
 
-        local _message = "Bombing Results - Top 10:\n"
+        local _message = "Bombing Results - Top 15:\n"
 
         for _playerName,_results in pairs(range.bombPlayerResults) do
 
@@ -207,7 +212,7 @@ function range.displayBombingResults(_unitName)
             end
 
             if _best ~= nil then
-                table.insert(_playerResults,{msg = string.format("%s: %i m - %s",_playerName,_best.distance,_best.name),distance = _best.distance})
+                table.insert(_playerResults,{msg = string.format("%s: %s - %s - %i m",_playerName,_best.name,_best.weapon,_best.distance),distance = _best.distance})
             end
 
         end
@@ -220,10 +225,10 @@ function range.displayBombingResults(_unitName)
 
         for _i = 1, #_playerResults do
 
-            _message = _message.."\n[".._i.."]".._playerResults[_i].msg
+            _message = _message.."\n[".._i.."] ".._playerResults[_i].msg
 
-            --top 10
-            if _i > 10 then
+            --top 15
+            if _i > 15 then
                 break
             end
         end
@@ -247,33 +252,33 @@ function range.eventHandler:onEvent(_eventDCS)
 
         if _event.id == 15 then --player entered unit
 
-            -- env.info("Player entered unit")
-            if  _event.initiator:getPlayerName() then
+        -- env.info("Player entered unit")
+        if  _event.initiator:getPlayerName() then
 
-                -- reset current status
-                range.strafeStatus[_event.initiator:getID()] = nil
+            -- reset current status
+            range.strafeStatus[_event.initiator:getID()] = nil
 
-                range.addF10Commands(_event.initiator:getName())
+            range.addF10Commands(_event.initiator:getName())
 
-                if  range.planes[_event.initiator:getID()] ~= true then
+            if  range.planes[_event.initiator:getID()] ~= true then
 
-                    range.planes[_event.initiator:getID()] = true
+                range.planes[_event.initiator:getID()] = true
 
-                    range.checkInZone(_event.initiator:getName())
-                end
-
+                range.checkInZone(_event.initiator:getName())
             end
 
-            return true
+        end
+
+        return true
         elseif  _event.id == world.event.S_EVENT_HIT and  _event.target  then
 
             --     env.info("HIT! ".._event.target:getName().." with ".._event.weapon:getTypeName())
 
             --_event.weapon is currently broken for clients
 
-                --   env.info(_event.initiator:getPlayerName().."HIT! ".._event.target:getName().." with ".._event.weapon:getTypeName())
+            --   env.info(_event.initiator:getPlayerName().."HIT! ".._event.target:getName().." with ".._event.weapon:getTypeName())
 
-                --    trigger.action.outText("HIT! ".._event.target:getName().." with ".._event.weapon:getTypeName(),10,false)
+            --    trigger.action.outText("HIT! ".._event.target:getName().." with ".._event.weapon:getTypeName(),10,false)
             local _currentTarget = range.strafeStatus[_event.initiator:getID()]
 
             if _currentTarget then
@@ -292,6 +297,9 @@ function range.eventHandler:onEvent(_eventDCS)
         elseif _event.id == world.event.S_EVENT_SHOT then
 
             local _weapon = _event.weapon:getTypeName()
+            local _weaponStrArray = range.split(_weapon,"%.")
+
+            local _weaponName = _weaponStrArray[#_weaponStrArray]
             if string.match(_weapon, "weapons.bombs") --all bombs
                     or string.match(_weapon, "weapons.nurs") --all rockets
                 --                    or _weapon == "weapons.bombs.BDU_50HD"
@@ -300,27 +308,41 @@ function range.eventHandler:onEvent(_eventDCS)
                 --                    or _weapon == "weapons.bombs.BDU_33"
             then
 
+
                 local _ordnance =  _event.weapon
 
+                env.info("Tracking ".._weapon.." - ".._ordnance:getName())
+                local _lastBombPos = {x=0,y=0,z=0}
+
                 local _unitName = _event.initiator:getName()
-                local trackBomb = function()
+                local trackBomb = function(_previousPos)
 
                     local _unit = Unit.getByName(_unitName)
 
                     --    env.info("Checking...")
                     if _unit ~= nil and _unit:getPlayerName() ~= nil then
-                        --     env.info("More Checking...")
-                        local _bombPos = _ordnance:getPoint()
 
-                        if _bombPos.y < land.getHeight({x = _bombPos.x, y = _bombPos.z}) + 5 then
 
-                            -- get closet target
+                        -- when the pcall returns a failure the weapon has hit
+                        local _status,_bombPos =  pcall(function()
+                            -- env.info("protected")
+                            return _ordnance:getPoint()
+                        end)
+
+                        if  _status then
+                            --ok! still in the air
+                            _lastBombPos = {x = _bombPos.x, y = _bombPos.y, z= _bombPos.z }
+
+                            return timer.getTime() + 0.005 -- check again !
+                        else
+                            --hit
+                            -- get closet target to last position
                             local _closetTarget = nil
                             local _distance = nil
 
                             for _,_targetZone in pairs(range.bombingTargets) do
 
-                                local _temp = range.getDistance(_targetZone.point, _bombPos)
+                                local _temp = range.getDistance(_targetZone.point, _lastBombPos)
 
                                 if _distance == nil or _temp < _distance then
 
@@ -329,7 +351,7 @@ function range.eventHandler:onEvent(_eventDCS)
                                 end
                             end
 
-                         --   env.info(_distance.." from ".._closetTarget.name)
+                            --   env.info(_distance.." from ".._closetTarget.name)
 
                             if _distance < 1000 then
 
@@ -339,18 +361,15 @@ function range.eventHandler:onEvent(_eventDCS)
 
                                 local _results =  range.bombPlayerResults[_unit:getPlayerName()]
 
-                                table.insert(_results,{name=_closetTarget.name, distance =_distance})
+                                table.insert(_results,{name=_closetTarget.name, distance =_distance, weapon = _weaponName })
 
                                 local _message = string.format("%s - %i m from bullseye of %s",_unit:getPlayerName(), _distance,_closetTarget.name)
 
                                 trigger.action.outText(_message,10,false)
 
                             end
-
-                            return
-                        else
-                            return timer.getTime() + 0.005
                         end
+
                     end
 
                     return
@@ -524,6 +543,15 @@ function range.getDistance(_point1, _point2)
     return math.sqrt(xDiff * xDiff + yDiff * yDiff)
 end
 
+--http://stackoverflow.com/questions/1426954/split-string-in-lua
+function range.split(str, sep)
+    local result = {}
+    local regex = ("([^%s]+)"):format(sep)
+    for each in str:gmatch(regex) do
+        table.insert(result, each)
+    end
+    return result
+end
 
 --init
 
