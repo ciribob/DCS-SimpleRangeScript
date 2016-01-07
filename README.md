@@ -55,7 +55,7 @@ An example setup of one strafe pit and target is shown below. The left_zone UNIT
 
 Next the strafe pit target is setup, I recommend you use this mod pack: http://www.476vfightergroup.com/downloads.php?do=file&id=287 for the strafe pits as the one in the sample mission will only survive one or two passes! Make sure the unit name (not group name) or static name is set to one of the names allowed for that strafe pit e.g. 'Strafe pit Left 1'
 
-![alt text](http://i1056.photobucket.com/albums/t379/cfisher881/Range%20Target_zpsrt3k8igg.jpg~originall "Strafe Pit Unit")
+![alt text](http://i1056.photobucket.com/albums/t379/cfisher881/Range%20Target_zpsrt3k8igg.jpg~original "Strafe Pit Unit")
 
 #### Bombing Targets
 
