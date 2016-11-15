@@ -31,6 +31,7 @@ range.strafeTargets = {
 }
 
 -- Zone Names
+range.bombingMinAlt = 1800
 range.bombingTargets = {
 
     "target1",
@@ -302,12 +303,14 @@ function range.eventHandler:onEvent(_eventDCS)
             local _weaponStrArray = range.split(_weapon,"%.")
 
             local _weaponName = _weaponStrArray[#_weaponStrArray]
-            if string.match(_weapon, "weapons.bombs") --all bombs
+            if (string.match(_weapon, "weapons.bombs") --all bombs
                     or string.match(_weapon, "weapons.nurs") --all rockets
                 --                    or _weapon == "weapons.bombs.BDU_50HD"
                 --                    or _weapon == "weapons.bombs.BDU_50LD"
                 --                    or _weapon == "weapons.nurs.HYDRA_70_M274"
                 --                    or _weapon == "weapons.bombs.BDU_33"
+				)
+				and _event.initiator:getPosition().p.y > range.bombingMinAlt
             then
 
 
