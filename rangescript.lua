@@ -16,12 +16,14 @@ range.strafeTargets = {
     {
         -- GROUP NAME for the unit whos waypoints enclose the target
         name = "left_zone",
+		minAlt = 500,
         maxAlt = 1500,
         goodPass = 20,
         targets = {'Strafe pit Left 3','Strafe pit Left 2','Strafe pit Left 1'}, -- which target(s) are valid for this zone - Unit Names
     },
     {
         name = "right_zone", -- GROUP NAME for the unit whos waypoints enclose the target
+		minAlt = 500,
         maxAlt = 1500,
         goodPass = 20,
         targets = {'Strafe pit Right 3','Strafe pit Right 2','Strafe pit Right 1'}, -- which target(s) are valid for this zone - Unit Names
@@ -282,7 +284,7 @@ function range.eventHandler:onEvent(_eventDCS)
             local _currentTarget = range.strafeStatus[_event.initiator:getID()]
 
             if _currentTarget then
-
+			
                 for _, _targetName in pairs(_currentTarget.zone.targets) do
 
                     if _targetName == _event.target:getName() then
@@ -407,7 +409,7 @@ function range.checkInZone(_unitName)
         local _currentStrafeRun =  range.strafeStatus[_unit:getID()]
 
         if _currentStrafeRun ~= nil then
-            if _currentStrafeRun.zone.polygon~=nil and mist.pointInPolygon(_unitPos,_currentStrafeRun.zone.polygon,_currentStrafeRun.zone.maxAlt) then
+            if _currentStrafeRun.zone.polygon~=nil and mist.pointInPolygon(_unitPos,_currentStrafeRun.zone.polygon,_currentStrafeRun.zone.maxAlt) and _unitPos.y >= _currentStrafeRun.zone.minAlt then
                 --still in zone, do nothing
                 _currentStrafeRun.time = _currentStrafeRun.time+1
             elseif _currentStrafeRun.zone.polygon~=nil then
@@ -454,7 +456,7 @@ function range.checkInZone(_unitName)
 
                 if  _targetZone.polygon~=nil and mist.pointInPolygon(_unitPos,_targetZone.polygon,_targetZone.maxAlt) then
 
-                    if  range.strafeStatus[_unit:getID()] == nil then
+                    if  range.strafeStatus[_unit:getID()] == nil and _unitPos.y >= _targetZone.minAlt then
 
                         range.strafeStatus[_unit:getID()] = {hits = 0, zone = _targetZone, time = 1 }
 
