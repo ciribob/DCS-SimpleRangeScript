@@ -35,12 +35,14 @@ range.strafeTargets = {
         -- GROUP NAME for the unit whos waypoints enclose the target
         name = "left_zone",
         maxAlt = 1500,
+        minAlt = 0,
         goodPass = 20,
         targets = {'Strafe pit Left 3','Strafe pit Left 2','Strafe pit Left 1'}, -- which target(s) are valid for this zone - Unit Names
     },
     {
         name = "right_zone", -- GROUP NAME for the unit whos waypoints enclose the target
         maxAlt = 1500,
+        minAlt = 100,
         goodPass = 20,
         targets = {'Strafe pit Right 3','Strafe pit Right 2','Strafe pit Right 1'}, -- which target(s) are valid for this zone - Unit Names
     }
