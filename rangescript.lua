@@ -1,10 +1,11 @@
 -- DCS - Simple Range Script
--- Version 1.1
+-- Version 1.2
 -- By Ciribob - https://github.com/ciribob/DCS-SimpleRangeScript
 --
 -- Change log:
 --      - Added more accuracte target distance measurement
 --      - Added weapon name for bombing range to scoreboard
+--	- Fixed script to work with new weapon names
 --
 -- Requires MIST 4.0.57 or newer!
 -- Inspired by Original Script by SNAFU http://forums.eagle.ru/showthread.php?t=109174
